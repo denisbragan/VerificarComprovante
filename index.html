@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Comprovante</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Verificar Comprovante</h1>
+    <p>Digite o nome da cidade para verificar se o comprovante precisa estar no nome do titular.</p>
+    <form id="form">
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" name="cidade" placeholder="Digite a cidade" required>
+        <button type="submit">Verificar</button>
+    </form>
+    <div class="result" id="resultado"></div>
+
+    <script>
+        // Dados dos territórios e cidades
+        const territorios = {
+            T2: { cidades: ["Campo Grande", "Dourados"], titularObrigatorio: true },
+            T3: { cidades: ['Diadema', 'Ferraz De Vasconcelos', 'Guarulhos', 'Itaquaquecetuba', 'Mauá', 'Mogi Das Cruzes', 'Poá', 'Ribeirão Pires', 'Rio Grande Da Serra', 'Santo André', 'São Bernardo Do Campo', 'São Paulo', 'Suzano'], titularObrigatorio: true },
+            T7: { cidades: ['Anchieta', 'Aperibé', 'Cachoeiro De Itapemirim', 'Cambuci', 'Campos Dos Goytacazes', 'Cantagalo', 'Cariacica', 'Cataguases', 'Cordeiro', 'Duas Barras', 'Guarapari', 'Itaocara', 'Itapemirim', 'Itaperuna', 'Laje Do Muriaé', 'Macuco', 'Marataízes', 'Miracema', 'Muriaé', 'Piúma', 'Santo Antônio De Pádua', 'São Fidélis', 'São José De Ubá', 'Serra', 'Vila Velha', 'Vitória'], titularObrigatorio: true },
+            T9: { cidades: ['Altinópolis', 'Aramina', 'Brasilia', 'Brasília', 'Franca', 'Guará', 'Igarapava', 'Ipuã', 'Itirapuã', 'Ituverava', 'Morro Agudo', 'Orlândia', 'Patrocínio Paulista', 'Ribeirão Preto', 'São Joaquim Da Barra', 'São José Da Bela Vista'], titularObrigatorio: true },
+            "T14.1": { cidades: ['Caucaia', 'Fortaleza', 'Maracanaú'], titularObrigatorio: true },
+            "T14.2": { cidades: ['Acaraú', 'Aquiraz', 'Beberibe', 'Camocim', 'Cascavel', 'Cruz', 'Eusébio', 'Fortim', 'Frecheirinha', 'Graça', 'Granja', 'Ibiapina', 'Itaitinga', 'Itapipoca', 'Itarema', 'Jijoca De Jericoacoara', 'Limoeiro Do Norte', 'Maranguape', 'Morada Nova', 'Mucambo', 'Pacajus', 'Pacatuba', 'Pacujá', 'Paracuru', 'Paraipaba', 'Parnaíba', 'Pentecoste', 'Pindoretama', 'Quixadá', 'Russas', 'São Benedito', 'São Gonçalo Do Amarante', 'São Luís Do Curu', 'Sobral', 'Tabuleiro Do Norte', 'Tianguá', 'Trairi', 'Ubajara'], titularObrigatorio: true },
+            
+            T1: { cidades: ['Apucarana', 'Arapongas', 'Araruna', 'Campo Mourão', 'Cianorte', 'Doutor Camargo', 'Engenheiro Beltrão', 'Jandaia Do Sul', 'Jussara', 'Mandaguari', 'Marialva', 'Maringá', 'Paiçandu', 'Peabiru', 'Rolândia', 'Telêmaco Borba', 'Ubiratã'], titularObrigatorio: false },
+            T4: { cidades: ['Bertioga', 'Caçapava', 'Caraguatatuba', 'Cubatão', 'Guarujá', 'Ilhabela', 'Itanhaém', 'Jacareí', 'Mongaguá', 'Peruíbe', 'Praia Grande', 'Santos', 'São José dos Campos', 'São Sebastião', 'São Vicente', 'Taubaté',  'Tremembé'], titularObrigatorio: false },
+            T5: { cidades: ['Araruama', 'Armação Dos Búzios', 'Arraial Do Cabo', 'Cabo Frio', 'Casimiro De Abreu', 'Iguaba Grande', 'Macaé', 'Rio Das Ostras', 'São Pedro Da Aldeia', 'Saquarema'], titularObrigatorio: false },
+            T6: { cidades: ['Além Paraíba', 'Barra Do Piraí', 'Barra Mansa', 'Bom Jardim', 'Cachoeiras De Macacu', 'Carmo', 'Comendador Levy Gasparian', 'Guapimirim', 'Itaipava', 'Itatiaia', 'Magé', 'Miguel Pereira', 'Nova Friburgo', 'Paraíba Do Sul', 'Paty Do Alferes', 'Petrópolis', 'Pinheiral', 'Porto Real', 'Resende', 'Sapucaia', 'Silva Jardim', 'Sumidouro', 'Teresópolis', 'Três Rios', 'Valença', 'Vassouras', 'Volta Redonda'], titularObrigatorio: false },
+            T8: { cidades: ['Aguanil', 'Alpinópolis', 'Araxá', 'Boa Esperança', 'Campo Do Meio', 'Campos Altos', 'Campos Gerais', 'Carmo Do Rio Claro', 'Conquista', 'Coqueiral', 'Coromandel', 'Cristais', 'Delta', 'Fortaleza De Minas', 'Guapé', 'Guaranésia', 'Guaxupé', 'Ibiá', 'Ilicínea', 'Itaú De Minas', 'Jacuí', 'Monte Santo De Minas', 'Nepomuceno', 'Nova Ponte', 'Passos', 'Pedrinópolis', 'Perdizes', 'Pratápolis', 'Pratinha', 'Sacramento', 'Santa Juliana', 'Santana Da Vargem', 'São Gotardo', 'São João Batista Do Glória', 'São José Da Barra', 'São Sebastião Do Paraíso', 'São Tomás De Aquino', 'Serra Do Salitre', 'Tapira', 'Uberaba', 'Uberlândia'], titularObrigatorio: false },
+            T10: { cidades: ['Carnaíba', 'Carpina', 'Caruaru', 'Flores', 'Goianá', 'Ilha De Itamaracá', 'Ipojuca', 'Itapissuma', 'Limoeiro', 'Mirandiba', 'Nazaré Da Mata', 'Olinda', 'Parnamirim', 'Paudalho', 'Paulista', 'Salgueiro', 'Santa Cruz Do Capibaribe', 'Serra Talhada', 'Surubim', 'Terra Nova', 'Timbaúba', 'Toritama', 'Verdejante'], titularObrigatorio: false },
+            T11: { cidades: ['Aracaju', 'Barra Dos Coqueiros', 'Cedro De São João', 'Divina Pastora', 'Itaporanga D´Ajuda', 'Japoatã', 'Lagarto', 'Laranjeiras', 'Nossa Senhora Do Socorro', 'Pacatuba', 'Propriá', 'Rosário Do Catete', 'São Cristóvão', 'Siriri', 'Telha'], titularObrigatorio: false },
+            T12: { cidades: ['Acopiara', 'Aiuaba', 'Antonina Do Norte', 'Araripe', 'Arneiroz', 'Assaré', 'Barbalha', 'Brejo Santo', 'Campos Sales', 'Cariús', 'Catarina', 'Cedro', 'Crateús', 'Crato', 'Farias Brito', 'Icó', 'Iguatu', 'Independência', 'Jati', 'Juazeiro Do Norte', 'Jucás', 'Lavras Da Mangabeira', 'Mauriti', 'Missão' 'Velha', 'Mombaça', 'Orós', 'Parambu', 'Piquet Carneiro', 'Porteiras', 'Quixelô', 'Salitre', 'Tarrafas', 'Tauá', 'Várzea Alegre'], titularObrigatorio: false },
+            T13: { cidades: ['Altos', 'Caxias', 'Parauapebas', 'Teresina', 'Timon'], titularObrigatorio: false },
+
+
+            // Adicione outros territórios aqui
+        };
+
+        // Função para verificar o comprovante
+        function verificarComprovante(cidade) {
+            for (const [territorio, info] of Object.entries(territorios)) {
+                if (info.cidades.includes(cidade)) {
+                    return `A cidade ${cidade} pertence ao território ${territorio}. O comprovante ${
+                        info.titularObrigatorio ? "precisa" : "não precisa"
+                    } estar no nome do titular.`;
+                }
+            }
+            return `A cidade ${cidade} não foi encontrada em nenhum território.`;
+        }
+
+        // Manipulação do formulário
+        const form = document.getElementById("form");
+        const resultadoDiv = document.getElementById("resultado");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault(); // Evita o recarregamento da página
+            const cidade = document.getElementById("cidade").value.trim();
+            const resultado = verificarComprovante(cidade);
+            resultadoDiv.textContent = resultado;
+        });
+    </script>
+</body>
+</html>
