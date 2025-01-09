@@ -56,10 +56,13 @@
 
         // Função para verificar o comprovante
         function verificarComprovante(cidade) {
-            const cidadeNormalizada = cidade.toLowerCase(); // Converte a entrada do usuário para minúsculas
+            const normalizar = (texto) => 
+                texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase(); // Remove acentos e converte para maiusculas
+
+            const cidadeNormalizada = normalizar(cidade); // Normaliza a entrada do usuário
+
             for (const [territorio, info] of Object.entries(territorios)) {
-                // Normaliza os nomes das cidades antes de comparar
-                if (info.cidades.some(c => c.toLowerCase() === cidadeNormalizada)) {
+                if (info.cidades.some(c => normalizar(c) === cidadeNormalizada)) {
                     return `A cidade ${cidade} pertence ao território ${territorio}. O comprovante ${
                         info.titularObrigatorio ? "precisa" : "não precisa"
                     } estar no nome do titular.`;
@@ -67,6 +70,7 @@
             }
             return `A cidade ${cidade} não foi encontrada em nenhum território.`;
         }
+
 
         // Manipulação do formulário
         const form = document.getElementById("form");
